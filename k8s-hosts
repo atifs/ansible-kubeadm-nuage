@@ -1,0 +1,30 @@
+[nuage_k8s]
+
+[nuage_k8s:children]
+nuage_k8s_master
+nuage_k8s_node
+#
+# The cluster group contains two subgroups: master and node
+#
+
+[nuage_k8s_master]
+master.example.com
+#
+# The master group should have only ONE FQDN defined/specified
+#
+
+[nuage_k8s_master:vars]
+master_ip_address_configured=192.168.0
+# If you need to specify a specific ip address for the master, uncomment the above and edit
+
+[nuage_k8s_node]
+node1.example.com
+node2.example.com
+#
+# FQDNs of hosts assigned the Kubernetes cluster node role
+#
+
+[nodes:vars]
+
+
+

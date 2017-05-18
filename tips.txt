@@ -1,0 +1,1 @@
+ansible nuage_k8s_master -i k8s-hosts -m ping

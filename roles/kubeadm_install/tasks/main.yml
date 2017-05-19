@@ -1,6 +1,9 @@
 ---
 # tasks file for kubeadm_install
 
+- name: Include distribution specifc vars
+  include_vars: CentOS.yml
+
 - name: CentOS 7 install
   include: CentOS.yml
 

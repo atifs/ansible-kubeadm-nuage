@@ -9,7 +9,7 @@
   vars:
 
     kubeadm_packages:
-      - docker.io
+      - docker
       - kubelet
       - kubeadm
       - kubectl
@@ -24,27 +24,32 @@
       ignore_errors: true
 
     - name: Remove packages
-      apt:
+      yum:
         name: '{{ kubeadm_packages | list }}'
         state: absent
         update_cache: true
       ignore_errors: true
-      when: ansible_distribution == 'Ubuntu'      
 
-    - name: Remove kubernetes repository (apt)
-      file:
-        path: /etc/apt/sources.list.d/kubernetes.list
+    - name: Add Kubernetes yum repo
+      yum_repository:
+        name: Kubernetes
+#        description: Kubernetes
+#        file: kubernetes
+#        baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+#        enabled: true
+#        gpgcakey: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+#        gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg  
+#        gpgcheck: true
         state: absent
-      when: ansible_distribution == 'Ubuntu'
 
-    - name: Update apt cache
-      apt:
-        update_cache: true
+
+    - name: yum updates
+      yum: name=* state=latest
+      remote_user: root
 
     - name: Remove immutable bit on /var/lib/kubelet
       command: chattr -Ri /var/lib/kubelet/
       ignore_errors: true
-      when: ansible_distribution == 'Ubuntu'      
 
     - name: Remove kubernetes directorys
       file:
@@ -63,11 +68,11 @@
   vars:
 
     kubeadm_packages:
-      - docker.io
+      - docker
       - kubelet
       - kubeadm
       - kubectl
-      - kubernetes-cni  
+      - kubernetes-cni
 
   tasks:
 
@@ -76,25 +81,30 @@
       async: 45
       poll: 0
       ignore_errors: true
-      
+
     - name: Remove packages
-      apt:
+      yum:
         name: '{{ kubeadm_packages | list }}'
         state: absent
         update_cache: true
       ignore_errors: true
-      when: ansible_distribution == 'Ubuntu'
-      
-    - name: Remove kubernetes repository (apt)
-      file:
-        path: /etc/apt/sources.list.d/kubernetes.list
+
+    - name: Add Kubernetes yum repo
+      yum_repository:
+        name: Kubernetes
+#        description: Kubernetes
+#        file: kubernetes
+#        baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+#        enabled: true
+#        gpgcakey: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+#        gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+#        gpgcheck: true
         state: absent
-      when: ansible_distribution == 'Ubuntu'
 
-    - name: Update apt cache
-      apt:
-        update_cache: true      
 
+    - name: yum updates
+      yum: name=* state=latest
+      remote_user: root      
     - name: Remove kubernetes directorys
       file:
         path: '{{ item }}'

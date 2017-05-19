@@ -63,7 +63,7 @@
       become: false
 
     - name: Initialize master
-      command: kubeadm init --token {{ admission_token }}
+      command: kubeadm init --skip-preflight-checks --token {{ admission_token }}
       args:
         creates: /etc/kubernetes/pki # Not 100% sure that the creates clause is correct
       register: master_init

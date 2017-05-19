@@ -1,6 +1,10 @@
 #
 ---
 
+- name: yum updates
+  yum: name=* state=latest
+  remote_user: root
+
 # Implements the CentOS portion of Step 1 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
 
 # cat <<EOF > /etc/yum.repos.d/kubernetes.repo

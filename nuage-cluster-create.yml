@@ -86,24 +86,7 @@
 
     # Implements Step 3 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
     # (3/4) Installing a pod network
-
-    - name: Install pod network
-      command: /usr/bin/kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f {{ kube_flannel_file }}
-      register: pod_network
-      tags:
-        - master
-        - network
-      ignore_errors: true
-
-    - debug:
-        var: pod_network.stdout_lines        
-
-    - name: Wait for Kube-DNS pod running
-      shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods --all-namespaces | grep kube-dns"
-      register: result
-      until: result.stdout.find("Running") != -1
-      retries: 30
-      delay: 10        
+    # it will be replaced by Nuage playbook!!!
 
 # Implements Step 4 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
 # (4/4) Joining your nodes
@@ -134,7 +117,7 @@
       template: src=node-10-kubeadm.conf.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     - name: Join nodes to cluster
-      command: kubeadm join --token {{ admission_token }} {{ master_ip_address }}:6443
+      command: kubeadm join --skip-preflight-checks --token {{ admission_token }} {{ master_ip_address }}:6443
       args:
         creates: /etc/kubernetes/kubelet.conf # Not 100% sure that the creates clause is correct
       register: node_join

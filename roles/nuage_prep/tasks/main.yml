@@ -1,0 +1,32 @@
+- name: Creates directory
+  file:
+    path: "/root/nuage-k8s-resources"
+    state: directory
+    owner: root
+
+- name: Copy files for ansible nuage container
+  template:
+    src: "{{ item }}.j2"
+    dest: "/root/nuage-k8s-resources/{{ item }}"
+  with_items:
+    - Dockerfile
+    - setup.sh
+    - inventory
+
+- name: Copy private key
+  copy:
+    src: /home/dev/.ssh/id_rsa
+    dest: /root/nuage-k8s-resources/private_key
+
+- name: Creating docker image
+  command: "docker build -t p1nrojas/nuage-k8s ."
+  args:
+    chdir: /root/nuage-k8s-resources
+
+- name: creating data-only-container
+  command: docker run -d --name nuage-data-only p1nrojas/nuage-k8s true 
+
+- name: creating container app
+  command: docker run -d -i -t --volumes-from nuage-data-only --name nuage-k8s01 p1nrojas/nuage-k8s
+
+

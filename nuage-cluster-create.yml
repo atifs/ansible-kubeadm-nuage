@@ -57,6 +57,10 @@
         master_ip_address: "{{ ansible_default_ipv4['address'] }}"
       when: master_ip_address_configured is not defined
 
+    - name: add key to root authorizd_keys file
+      shell: cat /home/centos/.ssh/authorized_keys > .ssh/authorized_keys
+      when: ansible_user == 'centos'
+
     - name: Save master_ip_address
       shell: "echo master_ip_address{{ ':' }} {{ master_ip_address }} > cfg/{{ cluster_name }}/master_ip_address.yml"
       delegate_to: 127.0.0.1
@@ -112,6 +116,10 @@
     - debug:
         var: master_ip_address
       run_once: true
+
+    - name: add key to root authorizd_keys file
+      shell: cat /home/centos/.ssh/authorized_keys > .ssh/authorized_keys
+      when: ansible_user == 'centos'
 
     - name: Copy 10-kubeadm.conf file to nserver
       template: src=node-10-kubeadm.conf.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf

@@ -1,0 +1,44 @@
+# Create an k8s group that contains the masters and nodes groups
+[k8s:children]
+masters
+nodes
+
+# Set variables common for all k8s hosts
+[k8s:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+vsd_api_url=https://192.168.0.20:8443
+vsp_version=v4_0
+enterprise=k8s-enterprise
+domain=Kubernetes
+
+vsc_active_ip=192.168.0.33
+vsc_standby_ip=192.168.0.34
+uplink_interface=ens160
+
+nuage_monitor_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuagekubemon-4.0-8.168.el7.centos.x86_64.rpm
+vrs_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuage-openvswitch-4.0.8-172.el7.x86_64.rpm
+plugin_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuage-k8s-plugin-4.0-8.168.el7.centos.x86_64.rpm
+
+# Required for Nuage Monitor REST server
+Kubernetes_master_cluster_hostname=k8s-master.sdn40r8.lab
+nuagekubemon_rest_server_port=9443
+
+# Optional
+nuage_interface_mtu=1460
+#User to be created by nuagekubemon as the enterprise admin user
+nuage_master_adminusername=k8s
+nuage_master_adminuserpasswd=k8s
+#CSP admin user password
+nuage_master_cspadminpasswd=csproot
+nuagekubemon_log_dir=/var/log/nuagekubemon
+
+# host group for masters
+[masters]
+k8s-master.sdn40r8.lab
+
+# host group for nodes, includes region info
+[nodes]
+k8s-node1.sdn40r8.lab
+k8s-node2.sdn40r8.lab

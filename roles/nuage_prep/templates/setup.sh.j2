@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ ! -f /var/log/ansible/ansible-packet-sdnlab.log ]; then
+    echo "There is not data. Proceed setup"
+    git clone https://github.com/nuagenetworks/nuage-kubernetes ~/nuage-kubernetes
+    touch /var/log/ansible/nuage-kubernetes.log
+    mv /home/dev/inventory /home/dev/nuage-kubernetes/ansible/inventory/inventory 
+    cd /home/dev/nuage-kubernetes
+    /bin/bash
+else
+    echo "Caution: user data detected. skipping setup. Next time override CMD"
+    /bin/bash
+fi
+

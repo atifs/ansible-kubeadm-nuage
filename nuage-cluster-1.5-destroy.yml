@@ -9,11 +9,12 @@
   vars:
 
     kubeadm_packages:
+      - yum-versionlock 
       - docker
-      - kubelet
-      - kubeadm
-      - kubectl
-      - kubernetes-cni
+      - kubectl-1.5.4-0
+      - kubelet-1.5.4-0
+      - kubernetes-cni-0.3.0.1-0.07a8a2
+      - http://yum.kubernetes.io/pool/082436e6e6cad1852864438b8f98ee6fa3b86b597554720b631876db39b8ef04-kubeadm-1.6.0-0.alpha.0.2074.a092d8e0f95f52.x86_64.rpm
 
   tasks:
 
@@ -30,18 +31,11 @@
         update_cache: true
       ignore_errors: true
 
-    - name: Add Kubernetes yum repo
+    - name: Removing Kubernetes yum repo
       yum_repository:
         name: Kubernetes
-#        description: Kubernetes
-#        file: kubernetes
-#        baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
-#        enabled: true
-#        gpgcakey: https://packages.cloud.google.com/yum/doc/yum-key.gpg
-#        gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg  
-#        gpgcheck: true
         state: absent
-
+      remote_user: root
 
     - name: yum updates
       yum: name=* state=latest

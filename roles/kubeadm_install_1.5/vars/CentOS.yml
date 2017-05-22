@@ -1,0 +1,13 @@
+---
+
+kubeadm_packages:
+  - yum-versionlock
+  - docker
+  - kubectl-1.5.4-0
+  - kubelet-1.5.4-0
+  - kubernetes-cni-0.3.0.1-0.07a8a2
+  - http://yum.kubernetes.io/pool/082436e6e6cad1852864438b8f98ee6fa3b86b597554720b631876db39b8ef04-kubeadm-1.6.0-0.alpha.0.2074.a092d8e0f95f52.x86_64.rpm
+
+kubeadm_services:
+  - docker
+  - kubelet

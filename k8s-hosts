@@ -13,7 +13,7 @@ nuage_k8s_node
 #
 
 [nuage_k8s_master]
-k8s-master.sdn40r8.lab ansible_host=147.75.68.39 ansible_user=centos ansible_port=2015
+k8s-master.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2015
 #
 # The master group should have only ONE FQDN defined/specified
 #
@@ -24,8 +24,8 @@ kube_flannel_file=https://raw.githubusercontent.com/coreos/flannel/master/Docume
 # If you need to specify a specific ip address for the master, uncomment the above and edit
 
 [nuage_k8s_node]
-k8s-node1.sdn40r8.lab ansible_host=147.75.68.39 ansible_user=centos ansible_port=2016
-k8s-node2.sdn40r8.lab ansible_host=147.75.68.39 ansible_user=centos ansible_port=2017
+k8s-node1.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2016
+k8s-node2.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2017
 #
 # FQDNs of hosts assigned the Kubernetes cluster node role
 #

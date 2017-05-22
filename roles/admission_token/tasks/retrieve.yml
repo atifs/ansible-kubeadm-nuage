@@ -1,7 +1,0 @@
----
-
-- include_vars: cfg/{{ cluster_name }}/token.yml
-
-- set_fact:
-    admission_token: '{{ admission_token }}'
-

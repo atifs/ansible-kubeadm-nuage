@@ -4,22 +4,6 @@
 #
 ---
 
-- hosts: localhost
-  gather_facts: false
-
-  roles:
-
-    - role: admission_token
-      tags:
-        - token
-
-  tasks:
-
-    - debug:
-        var: admission_token
-      tags:
-        - token
-
 # Implements Step 1 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
 # (1/4) Installing kubelet and kubeadm on your hosts
 
@@ -29,7 +13,7 @@
 
   roles:
 
-    - role: kubeadm_install
+    - role: kubeadm_install_1.5
       tags:
         - repo
         - master
@@ -57,20 +41,33 @@
         master_ip_address: "{{ ansible_default_ipv4['address'] }}"
       when: master_ip_address_configured is not defined
 
+    - name: add key to root authorizd_keys file
+      shell: cat /home/centos/.ssh/authorized_keys > /root/.ssh/authorized_keys
+      when: ansible_user == 'centos'
+
     - name: Save master_ip_address
       shell: "echo master_ip_address{{ ':' }} {{ master_ip_address }} > cfg/{{ cluster_name }}/master_ip_address.yml"
       delegate_to: 127.0.0.1
       become: false
 
     - name: Initialize master
-      command: kubeadm init --skip-preflight-checks --token {{ admission_token }}
-      args:
-        creates: /etc/kubernetes/pki # Not 100% sure that the creates clause is correct
+      command: kubeadm init --use-kubernetes-version=v1.5.6
       register: master_init
       ignore_errors: true
       tags:
         - master
         - init
+
+    - debug:
+        var: master_init.stdout_lines  
+    
+    - set_fact:
+        admission_token: "{{ item | regex_replace('^kubeadm join --token=([0-9a-z]{6}.[0-9a-z]{16}) .*$', '\\1') }}"
+      when: '"kubeadm join" in item'
+      with_items: "{{ master_init.stdout_lines }}"
+
+    - debug:
+        var: admission_token
 
     - name: Copy 10-kubeadm.conf file to nserver
       template: src=master-10-kubeadm.conf.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
@@ -82,28 +79,16 @@
         flat: true
       tags:
         - master
-        - remote        
+        - remote
+  
+    - name: Save token id
+      shell: "echo admission_token{{ ':' }} {{ admission_token }} > cfg/{{ cluster_name }}/token.yml"
+      delegate_to: 127.0.0.1
+      become: false
 
-    # Implements Step 3 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
-    # (3/4) Installing a pod network
-
-    - name: Install pod network
-      command: /usr/bin/kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f {{ kube_flannel_file }}
-      register: pod_network
-      tags:
-        - master
-        - network
-      ignore_errors: true
-
-    - debug:
-        var: pod_network.stdout_lines        
-
-    - name: Wait for Kube-DNS pod running
-      shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods --all-namespaces | grep kube-dns"
-      register: result
-      until: result.stdout.find("Running") != -1
-      retries: 30
-      delay: 10        
+# Implements Step 3 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
+# (3/4) Installing a pod network
+# it will be replaced by Nuage playbook!!!
 
 # Implements Step 4 of http://kubernetes.io/docs/getting-started-guides/kubeadm/
 # (4/4) Joining your nodes
@@ -130,13 +115,18 @@
         var: master_ip_address
       run_once: true
 
+    - name: add key to root authorizd_keys file
+      shell: cat /home/centos/.ssh/authorized_keys > /root/.ssh/authorized_keys
+      when: ansible_user == 'centos'
+
     - name: Copy 10-kubeadm.conf file to nserver
       template: src=node-10-kubeadm.conf.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
+    - name: kubeadm reset
+      command: kubeadm reset
+
     - name: Join nodes to cluster
-      command: kubeadm join --token {{ admission_token }} {{ master_ip_address }}:6443
-      args:
-        creates: /etc/kubernetes/kubelet.conf # Not 100% sure that the creates clause is correct
+      command: kubeadm join --token {{ admission_token }} {{ master_ip_address }}
       register: node_join
       ignore_errors: true
       tags:

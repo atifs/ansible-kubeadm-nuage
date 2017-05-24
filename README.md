@@ -3,6 +3,7 @@
 ## Goal
 
 Provide an Ansible playbook that implements the steps described in [Installing Kubernetes on Linux with kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/) for version 1.5 (check at the bottom of the kubeadm tutorial)
+My case, ansible runs into a <a href="https://pinrojas.com/2017/04/04/data-only-containers-for-ansible-automation/">container with a temporary private key</a>.
 
 ## Please Note
 
@@ -14,6 +15,7 @@ These playbooks assume:
 
 * Nuage VSD and VSCs are up and running.
 * You have access to 3+ Linux machines, with CentOS 7
+* Runs into a <a href="https://pinrojas.com/2017/04/04/data-only-containers-for-ansible-automation/">container with a temporary ssh private key</a>.
 * Full network connectivty exists between the machines, and the Ansible control machine (e.g. your computer)
 * The machines have access to the Internet
 * You are Ansible-knowledgable, can ssh into all the machines, and can sudo with no password prompt

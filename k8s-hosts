@@ -26,6 +26,8 @@ kube_flannel_file=https://raw.githubusercontent.com/coreos/flannel/master/Docume
 [nuage_k8s_node]
 k8s-node1.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2016
 k8s-node2.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2017
+k8s-node3.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2018
+k8s-node4.sdn40r8.lab ansible_host=147.75.201.137 ansible_user=centos ansible_port=2019
 #
 # FQDNs of hosts assigned the Kubernetes cluster node role
 #

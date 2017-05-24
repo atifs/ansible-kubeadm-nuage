@@ -15,7 +15,8 @@ domain=Kubernetes
 
 vsc_active_ip=192.168.0.33
 vsc_standby_ip=192.168.0.34
-uplink_interface=ens160
+uplink_interface=eth0
+userspace_kubeproxy=false
 
 nuage_monitor_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuagekubemon-4.0-8.168.el7.centos.x86_64.rpm
 vrs_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuage-openvswitch-4.0.8-172.el7.x86_64.rpm
@@ -28,8 +29,8 @@ nuagekubemon_rest_server_port=9443
 # Optional
 nuage_interface_mtu=1460
 #User to be created by nuagekubemon as the enterprise admin user
-nuage_master_adminusername=k8s
-nuage_master_adminuserpasswd=k8s
+nuage_master_adminusername=admin
+nuage_master_adminuserpasswd=admin
 #CSP admin user password
 nuage_master_cspadminpasswd=csproot
 nuagekubemon_log_dir=/var/log/nuagekubemon
@@ -42,3 +43,5 @@ k8s-master.sdn40r8.lab
 [nodes]
 k8s-node1.sdn40r8.lab
 k8s-node2.sdn40r8.lab
+k8s-node3.sdn40r8.lab
+k8s-node4.sdn40r8.lab

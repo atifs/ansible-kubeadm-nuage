@@ -34,7 +34,7 @@
 
   become: true
   
-  tasks:
+  pre_tasks:
 
     - name: Pull facts on hypervisor
       action: setup

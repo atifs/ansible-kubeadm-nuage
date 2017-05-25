@@ -33,5 +33,6 @@
   register: k8s-plugin
 
 - name: Show results
-  debug: k8s-plugin.stdout_lines 
+  debug: 
+    var: k8s-plugin.stdout_lines 
 

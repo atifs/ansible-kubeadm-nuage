@@ -20,7 +20,6 @@ k8s-master.sdn40r8.lab ansible_host=147.75.69.37 ansible_user=centos ansible_por
 
 [nuage_k8s_master:vars]
 master_ip_address_configured=192.168.0.15
-kube_flannel_file=https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 # If you need to specify a specific ip address for the master, uncomment the above and edit
 
 [nuage_k8s_node]

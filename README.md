@@ -1,37 +1,25 @@
-## UNDER DEVELOPMENT / DO NOT USE
-# Ansible playbook and roles to create/manage a simple Kubernetes cluster with kubeadm
+# Ansible playbook and roles to install kubernetes with nuage (version 1.5)
 
 ## Goal
 
-Provide an Ansible playbook that implements the steps described in [Installing Kubernetes on Linux with kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/)
+Provide an Ansible playbook that implements the steps described in [Installing Kubernetes on Linux with kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/) for version 1.5 (check at the bottom of the kubeadm tutorial)
+My case, ansible runs into a <a href="https://pinrojas.com/2017/04/04/data-only-containers-for-ansible-automation/">container with a temporary private key</a>.
 
 ## Please Note
 
-Newly revised for Kubernetes/kubeadm 1.6.1
-
-Release 1.6 broke kubeadm, and there was an interim release here that worked around that, but with the new 1.6.1 release things seem to be working better.
-
-I haven't tried/used CentOS 7 in months, and never got it to work.  My current focus/testing is on Ubuntu 16.04, and this is working well there.
-
-The structure of these playbooks has changed significantly since their initial release.
-Specifically the structure/hierarchy of the Ansible Inventory file has changed, and the playbooks now
-require this new structure.
-
-In brief, there used to be one inventory file per cluster.
-Now there can be many clusters defined in the inventory, and the group structure/hierarchy defined here is required.
-The cluster\_name must be passed into the playbook (e.g. --extra-vars "cluster_name=foo" )
-
-There are important advantages to this breaking change, specifically it is now much easier to use these playbooks with your existing
-inventory (assuming you add the necessary sub-groups), and now it is straightforward to manage/operate on multiple clusters.
+Kubernetes/kubeadm 1.5
 
 ## Assumptions
 
 These playbooks assume:
 
-* You have access to 3+ Linux machines, with Ubuntu 16.04 installed (CentOS 7 support currently out of date and broken)
+* Nuage VSD and VSCs are up and running.
+* You have access to 3+ Linux machines, with CentOS 7
+* Runs into a <a href="https://pinrojas.com/2017/04/04/data-only-containers-for-ansible-automation/">container with a temporary ssh private key</a>.
 * Full network connectivty exists between the machines, and the Ansible control machine (e.g. your computer)
 * The machines have access to the Internet
 * You are Ansible-knowledgable, can ssh into all the machines, and can sudo with no password prompt
+* You have access to your Nuage VSD and VSCs from any server with no restrictions
 * Make sure your machines are time-synchronized, and that you understand their firewall configuration and status
 
 ## Ansible Inventory Structure and Requirements
@@ -42,27 +30,18 @@ These playbooks assume:
 3. List the FQDNs of the machines assigned the role of Kubernetes node in the ```[cluster_name_node]``` group.
 5. Optionally add the variable ```master_ip_address_configured``` in the ```[cluster_name_master:vars]``` section, if your master machine has multiple interfaces, and the default interface is NOT the interface you want the nodes to use to connect to the master.
 
-A sample Inventory file is included as ```cfg/INVENTORY-EXAMPLE```, but if you have/use an existing Ansible inventory, it is a lot easier to just add the structure described above to your existing inventory and use that, IMHO.
+A sample Inventory file called k8s-hosts is included, but if you have/use an existing Ansible inventory, it is a lot easier to just add the structure described above to your existing inventory.
 
 After you have done this, you should be able to succesfully execute something like this:
 
 ```
-    ansible -m ping -e cluster_name=k8s_test
+    ansible nuage_k8s -i k8s-hosts -m ping -e cluter_name=nuage_k8s
 ```
 
 And your master and node machines should respond.  
 
-Then test that you can operate on each of the child groups independently:
 
-```
-    ansible -m ping -e cluster_name=k8s_test_master
-```
 
-and
-
-```
-    ansible -m ping -e cluster_name=k8s_test_node
-```
 
 Don't bother proceeding until all the above work!
 
@@ -71,12 +50,18 @@ Don't bother proceeding until all the above work!
 When you are ready to proceed, run something like:
 
 ```
-    ansible-playbook cluster-create.yml -e cluster_name=k8s_test
+      ansible-playbook -i k8s-hosts -e cluster_name=nuage_k8s nuage-cluster-1.5-create.yml
 ```
 
 This should execute/implement all four installation steps in the aforementioned installation guide.
 
-The guide then provides examples you can run to test your cluster.
+If this ends succesfully, then you can proceed to install Nuage VRS and K8s plugins:
+
+```
+      ansible-playbook -i k8s-hosts -e cluster_name=nuage_k8s nuage-4.0-k8s-plugin.yml
+```
+
+You can try some of the examples at: https://github.com/p1nrojas/nuage-k8s-plugin-4.0r8/tree/master/sample-jsons
 
 If you want to interact with your cluster via the kubectl command on your own machine (and why wouldn't you?), take note of the last note in the "Limitations" section of the guide:
 
@@ -97,42 +82,19 @@ The playbook retrieves the admin.conf file, and stores it locally as ```./cfg/cl
 ## Additional Playbooks
 
 ```
-    ansible-playbook cluster-infra.yml -e cluster_name=k8s_test
-```
-
-Starts the Dashboard and WeaveScope on the cluster.
-
-```
-    ansible-playbook cluster-destroy.yml -e cluster_name=k8s_test
+    ansible-playbook -i k8s-hosts -e cluster_name=nuage_k8s nuage-cluster-1.5-destroy.yml
 ```
 
 Completely destroys your cluster, with no backups. Don't run this unless that is what you really want!
 
-## Idempotency
-
-* I belive I have made admission token generation idempotent. Generated tokens are stored in ```./cfg/cluster_name/token.yml```, and reused on subsequent playbook runs
-* I'm not sure how to know that the init and join operations have successfully completed, I've tried to base it on files/directories that are created, but not yet certain that is correct.
-* It seems like re-issuing the ```kubectl apply -f https://git.io/weave-kube``` is harmless, but again, I'm not certain...
-
 ## Notes and Caveats
 
 * This playbook is under active development, but is not extensively tested.
-* I have successfully run this to completion on a 3 machine Ubuntu setup, it basically worked the first time.
-* I haven't yet succeeded in getting a cluster working perfectly on Centos 7. As of 2017-04-03 CentOS 7 support is completely out of date and currently unsupported.
-* I don't yet understand much or anything about the Kubernetes pod network "Weave Net" the guide and this playbook installs.  Be forewarned!
-
-## TODO
-
-* Migrate token generation to use the new ```kubeadm token generate``` feature
-* Figure out how to get and use JSON output of kubectl commands issued by these playbooks. This should be straightfoward/trival but I've run into issues with certain invoications of kubectl returning invalid JSON (it returns multiple objects at the top-level, not in an array...)
-* Fix/improve/update CentOS 7 support
+* I have successfully run this to completion on a 3 machine CentOS setup, it basically worked the first time.
 
 ## Acknowlegements
 
-* Huge kudos to the authors of kubeadm and [its getting started guide](http://kubernetes.io/docs/getting-started-guides/kubeadm/)
-* Joe Beda [provided the code to generate tokens, and how to feed a token into kubeadm init](https://github.com/upmc-enterprises/kubeadm-aws/issues/1)
-* @marun pointed me to the documentation about how to access the master remotely via kubectl
-* @VAdamec forked this repo, and made some improvements, several of which I have incorporated here.
+* Kudos to Don Jackson, where actually I forked this project
 
 ## Contributing
 

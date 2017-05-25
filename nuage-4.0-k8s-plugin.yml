@@ -87,3 +87,31 @@
 
     - debug:
         var: k8sstatus.stdout_lines
+
+# removing innecesary iptables rules
+
+- hosts: "{{ cluster_name }}_node"
+
+  become: true
+
+  tasks:
+
+    - name: remove iptables innecesary rules
+      command: "{{ item }}"
+      with_items:
+        - 'iptables -D INPUT 7'
+        - 'iptables -D FORWARD 4'
+        - 'iptables -D FORWARD 3'
+
+
+- hosts: "{{ cluster_name }}_master"
+
+  become: true
+
+  tasks:
+
+    - name: remove iptables innecesary rules
+      command: "{{ item }}"
+      with_items:
+        - 'iptables -D INPUT 8'
+        - 'iptables -D FORWARD 1'

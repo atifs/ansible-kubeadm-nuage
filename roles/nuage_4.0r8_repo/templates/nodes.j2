@@ -8,22 +8,22 @@ nodes
 # SSH user, this user should allow ssh based auth without requiring a password
 ansible_ssh_user=root
 
-vsd_api_url=https://192.168.0.20:8443
-vsp_version=v4_0
-enterprise=k8s-enterprise
-domain=Kubernetes
+vsd_api_url={{ vsd_api_url }}
+vsp_version={{ vsp_version }}
+enterprise={{ enterprise }}
+domain={{ domain }}
 
-vsc_active_ip=192.168.0.33
-vsc_standby_ip=192.168.0.34
-uplink_interface=eth0
+vsc_active_ip={{ vsc_active_ip }}
+vsc_standby_ip={{ vsc_standby_ip }}
+uplink_interface={{ uplink_interface }}
 userspace_kubeproxy=false
 
-nuage_monitor_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuagekubemon-4.0-8.168.el7.centos.x86_64.rpm
-vrs_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuage-openvswitch-4.0.8-172.el7.x86_64.rpm
-plugin_rpm=https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r8+files/nuage-k8s-plugin-4.0-8.168.el7.centos.x86_64.rpm
+nuage_monitor_rpm={{ nuage_monitor_rpm }}
+vrs_rpm={{ vrs_rpm }}
+plugin_rpm={{ plugin_rpm }}
 
 # Required for Nuage Monitor REST server
-Kubernetes_master_cluster_hostname=k8s-master.sdn40r8.lab
+Kubernetes_master_cluster_hostname={{ inventory_hostname }}
 nuagekubemon_rest_server_port=9443
 
 # Optional
@@ -37,11 +37,12 @@ nuagekubemon_log_dir=/var/log/nuagekubemon
 
 # host group for masters
 [masters]
-k8s-master.sdn40r8.lab
+{{ inventory_hostname }}
 
 # host group for nodes, includes region info
 [nodes]
-k8s-node1.sdn40r8.lab
-k8s-node2.sdn40r8.lab
-k8s-node3.sdn40r8.lab
-k8s-node4.sdn40r8.lab
+{% for elem in groups['nuage_k8s_node'] %}
+{% if elem %}
+{{ groups['nuage_k8s_node'][loop.index - 1] }}
+{% endif %}
+{% endfor %}

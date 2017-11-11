@@ -1,0 +1,16 @@
+---
+
+kubeadm_packages:
+  - python
+  - python-pip
+  - python-netaddr
+  - systemd
+  - docker
+  - kubelet-1.6.6
+  - kubeadm-1.6.6
+  - kubectl-1.6.6
+  - kubernetes-cni
+
+kubeadm_services:
+  - docker
+  - kubelet

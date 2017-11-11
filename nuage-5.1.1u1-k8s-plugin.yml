@@ -1,0 +1,90 @@
+# preping all nodes
+
+- hosts: "{{ cluster_name }}"
+
+  become: true
+
+  tasks:
+
+    - name: Pull facts on hypervisor
+      action: setup
+
+    - name: Install epel-release repo
+      yum: name=epel-release state=present
+
+    - name: yum updates
+      yum: name=* state=latest
+
+    - name: Copy private key
+      copy:
+        src: /home/dev/.ssh/id_rsa
+        dest: /root/.ssh/id_rsa
+        mode: 0600
+
+    - name: Install some other packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python-pip
+
+# moving some files to master to run our playbook
+
+- hosts: "{{ cluster_name }}_master"
+
+  become: true
+  
+  pre_tasks:
+
+    - name: Pull facts on hypervisor
+      action: setup
+
+    - name: Install epel-release repo
+      yum: name=epel-release state=present
+
+    - name: Install some other packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - ansible
+        - git
+
+  roles:
+
+    - role: nuage_4.0r8_repo
+      tags:
+        - nuage
+
+# restarting kube-dns pod
+
+- hosts: "{{ cluster_name }}_master"
+
+  become: true
+
+  tasks:
+
+    - name: get kube-dns name
+      shell: kubectl get --no-headers=true pods -o name --all-namespaces | awk -F "/" '{print $2}' | grep kube-dns
+      register: kubedns
+
+    - debug:
+        var: kubedns
+
+    - name: restart kube-dns
+      shell: kubectl delete pod {{ kubedns.stdout }} -n kube-system
+
+    - name: Wait for Kube-DNS pod running
+      shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods --all-namespaces | grep kube-dns"
+      register: result
+      until: result.stdout.find("Running") != -1
+      retries: 30
+      delay: 10
+
+    - name: showing k8s status
+      shell: kubectl get pods --all-namespaces
+      register: k8sstatus
+
+    - debug:
+        var: k8sstatus.stdout_lines
+

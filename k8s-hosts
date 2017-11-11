@@ -3,6 +3,12 @@
 # Inventory Dynamically created for https://github.com/p1nrojas/ansible-kubeadm-nuage
 #
 
+[vsd]
+vsd1.nuage511u1.lab ansible_host=147.75.107.125 ansible_user=root ansible_port=2020
+
+[vsd:vars]
+master_ip_address_configured=192.168.0.27
+
 [nuage_k8s]
 #
 #
@@ -15,30 +21,30 @@ nuage_k8s_node
 #
 
 [nuage_k8s_master]
-k8s-master.sdn40r9.lab ansible_host=147.75.68.139 ansible_user=centos ansible_port=2015
+consul.sdn511u1.lab.lab ansible_host=147.75.107.125 ansible_user=centos ansible_port=2027
 #
 # The master group should have only ONE FQDN defined/specified
 #
 
 [nuage_k8s_master:vars]
-master_ip_address_configured=192.168.0.15
+master_ip_address_configured=192.168.0.27
 ntp_server='192.168.0.12'
 vsd_api_url='https://192.168.0.20:8443'
-vsp_version='v4_0'
+vsp_version='v5_0'
+service_cidr='70.70.0.0/16'
+csproot_passwd='csproot'
 enterprise='ACME_Corp'
 domain=Kubernetes
-vsc_active_ip='192.168.0.34'
-vsc_standby_ip='192.168.0.35'
+vsc_active_ip='192.168.0.33'
+vsc_standby_ip='192.168.0.34'
 uplink_interface=eth0
 nuage_monitor_rpm='https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r9+files/nuagekubemon40r9.rpm'
 vrs_rpm='https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r9+files/nuage-openvswitch40r9.rpm'
 plugin_rpm='https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r9+files/nuage-k8s-plugin40r9.rpm'
 
 [nuage_k8s_node]
-k8s-node1.sdn40r9.lab ansible_host=147.75.68.139 ansible_user=centos ansible_port=2016
-k8s-node2.sdn40r9.lab ansible_host=147.75.68.139 ansible_user=centos ansible_port=2017
-k8s-node3.sdn40r9.lab ansible_host=147.75.68.139 ansible_user=centos ansible_port=2018
-k8s-node4.sdn40r9.lab ansible_host=147.75.68.139 ansible_user=centos ansible_port=2019
+docker1.sdn511u1.lab.lab ansible_host=147.75.107.125 ansible_user=centos ansible_port=2028
+docker2.sdn511u1.lab.lab ansible_host=147.75.107.125 ansible_user=centos ansible_port=2029
 #
 # FQDNs of hosts assigned the Kubernetes cluster node role
 #

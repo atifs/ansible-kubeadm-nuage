@@ -1,0 +1,3 @@
+- name: "Copying certificates from VSD to k8s Master server"
+  shell:  "/opt/vsd/ejbca/deploy/certMgmt.sh -a generate -u k8s-admin -c k8s-admin -o csp -d {{ inventory_hostname }} -f pem -t server -s root@{{ master_ip_address_configured  }}:/usr/local"
+  remote_user: root

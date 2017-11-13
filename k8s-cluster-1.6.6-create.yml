@@ -22,6 +22,9 @@
     - name: Read token from file
       include_vars: cfg/{{ cluster_name }}/token.yml
 
+    - name: Read token_ca_cert_hash from file
+      include_vars: cfg/{{ cluster_name }}/token_ca_cert_hash.yml
+
   tasks:
 
     - set_fact:
@@ -41,6 +44,9 @@
       delegate_to: 127.0.0.1
       become: false
 
+    - name: kubeadm reset
+      command: kubeadm reset
+
     - name: Initialize master
       command: kubeadm init kubeadm init service-cidr {{ service_cidr }}  apiserver-advertise-address {{ master_ip_address }} kubernetes-version v1.6.6
       register: master_init
@@ -53,7 +59,7 @@
         var: master_init.stdout_lines
 
     - set_fact:
-        admission_token: "{{ item | regex_replace('^kubeadm join --token=([0-9a-z]{6}.[0-9a-z]{16}) .*$', '\\1') }}"
+        admission_token: "{{ item | regex_replace('^ .*kubeadm join --token ([0-9a-z]{6}.[0-9a-z]{16}) .*$', '\\1') }}"
       when: '"kubeadm join" in item'
       with_items: "{{ master_init.stdout_lines }}"
 
@@ -77,7 +83,18 @@
       delegate_to: 127.0.0.1
       become: false
 
+    - set_fact:
+        token_ca_cert_hash: "{{ item | regex_replace('^ .*sha256:([0-9a-z]*)$', '\\1') }}"
+      when: '"kubeadm join" in item'
+      with_items: "{{ master_init.stdout_lines }}"
 
+    - debug:
+        var: token_ca_cert_hash
+
+    - name: Save token ca cert hash
+      shell: "echo token_ca_cert_hash{{ ':' }} {{ token_ca_cert_hash }} > cfg/{{ cluster_name }}/token_ca_cert_hash.yml"
+      delegate_to: 127.0.0.1
+      become: false
 
 - hosts: "{{ cluster_name }}_node"
 
@@ -87,6 +104,9 @@
 
     - name: Read token from file
       include_vars: cfg/{{ cluster_name }}/token.yml
+
+    - name: Read token_ca_cert_hash from file
+      include_vars: cfg/{{ cluster_name }}/token_ca_cert_hash.yml
 
     - name: Read master_ip_address from file
       include_vars: cfg/{{ cluster_name }}/master_ip_address.yml
@@ -112,8 +132,7 @@
       command: kubeadm reset
 
     - name: Join nodes to cluster
-#      command: kubeadm join --token {{ admission_token }} {{ master_ip_address }}
-      command: {{ admission_token }}
+      command: kubeadm join --token {{ admission_token }} {{ master_ip_address }}:6443 --discovery-token-ca-cert-hash sha256:{{ token_ca_cert_hash }}
       register: node_join
       ignore_errors: true
       tags:

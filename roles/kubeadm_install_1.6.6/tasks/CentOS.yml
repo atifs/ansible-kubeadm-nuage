@@ -20,10 +20,6 @@
   sudo: yes
   ignore_errors: True
 
-- name: setting /proc/sys/net/bridge/bridge-nf-call-iptables to '1'
-  shell: echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
-  sudo: yes
-
 - name: Flush iptables
   shell: "{{ item }}"
   with_items: 
@@ -55,4 +51,7 @@
     state: started
   with_items: '{{ kubeadm_services }}'
 
+- name: setting /proc/sys/net/bridge/bridge-nf-call-iptables to '1'
+  shell: echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+  sudo: yes
 

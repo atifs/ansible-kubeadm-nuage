@@ -1,0 +1,81 @@
+- hosts: "{{ cluster_name }}_master"
+
+  vars: 
+    url_nuage_docker_images_base_path: 'https://nuage-secure-files.s3.amazonaws.com/5.1.1u1-files/k8s/' 
+    nuage_master_docker_image_file: 'nuage-master-docker-5.1.1-5.tar?Signature=zdVE2%2F9lWHiTt2qTQHF20nkW7VA%3D&Expires=1511387448&AWSAccessKeyId=AKIAILPH3QRIVPNRV5IA'
+    nuage_vrs_docker_image_file: 'nuage-vrs-docker-5.1.1-9.tar?Signature=XCyxZW%2BQzIXQDSz%2B4EOB6cFuQiw%3D&Expires=1511387448&AWSAccessKeyId=AKIAILPH3QRIVPNRV5IA'
+    nuage_cni_docker_image_file: 'nuage-cni-docker-5.1.1-5.tar?Signature=PbS8Y0j%2Fdp%2FHxcj1tY2wUOPucy8%3D&Expires=1511387448&AWSAccessKeyId=AKIAILPH3QRIVPNRV5IA'
+
+    nuage_docker_images: 
+      - { name: 'nuage/master:5.1.1-5' , archive: '/tmp/nuage_master_docker.tar' }
+      - { name: 'nuage/vrs:5.1.1-9' , archive: '/tmp/nuage_vrs_docker.tar' }
+      - { name: 'nuage/cni:5.1.1-5' , archive: '/tmp/nuage_cni_docker.tar' }
+
+  become: true
+
+  tasks:
+
+    - pip:
+        name: docker-py
+
+    - name: Checking image file is was already copied before
+      stat:
+        path: "/tmp/nuage_master_docker.tar"
+      register: master_image_file
+
+    - name: copy archive docker image files to /tmp
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.file }}"
+        mode: 0666
+      with_items:
+        - { url: '{{ url_nuage_docker_images_base_path }}{{ nuage_master_docker_image_file }}', file: '/tmp/nuage_master_docker.tar' }
+        - { url: '{{ url_nuage_docker_images_base_path }}{{ nuage_cni_docker_image_file }}', file: '/tmp/nuage_cni_docker.tar' }
+        - { url: '{{ url_nuage_docker_images_base_path }}{{ nuage_vrs_docker_image_file }}', file: '/tmp/nuage_vrs_docker.tar' }
+      when: master_image_file.stat.exists == False
+
+    - name: Load image from archive 
+      docker_image:
+        name: "{{ item.name }}"
+        load_path: "{{ item.archive }}"
+      with_items: "{{ nuage_docker_images }}"
+
+- hosts: "{{ cluster_name }}_node"
+
+  vars:
+    url_nuage_docker_images_base_path: 'https://nuage-secure-files.s3.amazonaws.com/5.1.1u1-files/k8s/'
+    nuage_vrs_docker_image_file: 'nuage-vrs-docker-5.1.1-9.tar?Signature=XCyxZW%2BQzIXQDSz%2B4EOB6cFuQiw%3D&Expires=1511387448&AWSAccessKeyId=AKIAILPH3QRIVPNRV5IA'
+    nuage_cni_docker_image_file: 'nuage-cni-docker-5.1.1-5.tar?Signature=PbS8Y0j%2Fdp%2FHxcj1tY2wUOPucy8%3D&Expires=1511387448&AWSAccessKeyId=AKIAILPH3QRIVPNRV5IA'
+
+    nuage_docker_images:
+      - { name: 'nuage/vrs:5.1.1-9' , archive: '/tmp/nuage_vrs_docker.tar' }
+      - { name: 'nuage/cni:5.1.1-5' , archive: '/tmp/nuage_cni_docker.tar' }
+
+  become: true
+
+  tasks:
+
+    - pip:
+        name: docker-py
+
+    - name: Checking image file is was already copied before
+      stat:
+        path: "tmp/nuage_vrs_docker.tar"
+      register: node_image_file
+
+    - name: copy archive docker image files to /tmp
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.file }}"
+        mode: 0666
+      with_items:
+        - { url: '{{ url_nuage_docker_images_base_path }}{{ nuage_cni_docker_image_file }}', file: '/tmp/nuage_cni_docker.tar' }
+        - { url: '{{ url_nuage_docker_images_base_path }}{{ nuage_vrs_docker_image_file }}', file: '/tmp/nuage_vrs_docker.tar' }
+      when: node_image_file.stat.exists == False
+
+    - name: Load image from archive
+      docker_image:
+        name: "{{ item.name }}"
+        load_path: "{{ item.archive }}"
+      with_items: "{{ nuage_docker_images }}"
+

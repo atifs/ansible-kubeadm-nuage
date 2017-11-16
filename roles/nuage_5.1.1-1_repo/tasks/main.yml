@@ -1,0 +1,38 @@
+---
+
+- name: clone github nuage repo for k8s
+  git:
+    repo: 'https://github.com/nuagenetworks/nuage-kubernetes.git'
+    dest: /root/nuage-k8s-plugin-5.1.1-1
+    tag: 5.1.1-1
+  ignore_errors: yes
+
+- name: checkout git version
+  command: "git checkout tags/v5.1.1-1"
+  args:
+    chdir: /root/nuage-k8s-plugin-5.1.1-1
+  register: gitchk
+
+- debug:
+    var: gitchk.stdout_lines
+
+- name: Copy inventory
+  template:
+    src: "nodes.j2"
+    dest: "/root/nuage-k8s-plugin-5.1.1-1/ansible/nodes"
+
+- name: Execute playbook
+  shell: ./deploy-cluster.sh --tags=nuage
+  args:
+    chdir: /root/nuage-k8s-plugin-5.1.1-1/ansible/scripts
+  ignore_errors: yes
+  become_user: root
+
+- name: get ansible log lines
+  shell: tail -100 /root/nuage-k8s-plugin-5.1.1-1/ansible/scripts/ansible.log 
+  register: k8s-plugin
+
+- name: Show results
+  debug: 
+    var: k8s-plugin.stdout_lines 
+

@@ -1,0 +1,20 @@
+monitor_yaml_config: |
+    kubeConfig: /usr/share/nuagekubemon/nuage.kubeconfig
+    masterConfig: /usr/share/nuagekubemon/net-config.yaml
+    vsdApiUrl: https://{{ vsd_ip }}:7443
+    vspVersion: {{ vsd_version }}
+    enterpriseName: {{ enterprise }}
+    domainName: {{ domain }}
+    userCertificateFile: /usr/local/k8s-admin.pem
+    userKeyFile: /usr/local/k8s-admin-Key.pem
+    log_dir: /var/log/nuagekubemon
+    logLevel: 0
+    nuageMonServer:
+        URL: 0.0.0.0:9443
+        certificateDirectory: /usr/share/nuagekubemon
+
+net_yaml_config: |
+    networkConfig:
+      clusterNetworkCIDR: 70.70.0.0/16
+      serviceNetworkCIDR: 192.168.0.0/16
+      hostSubnetLength: 8

@@ -4,7 +4,7 @@
 #
 
 [vsd]
-vsd1.nuage511u1.lab ansible_host=147.75.79.31 ansible_user=root ansible_port=2020
+vsd1.nuage511u1.lab ansible_host=147.75.74.243 ansible_user=root ansible_port=2020
 
 [vsd:vars]
 master_ip_address_configured=192.168.0.27
@@ -21,7 +21,7 @@ nuage_k8s_node
 #
 
 [nuage_k8s_master]
-consul.sdn511u1.lab.lab ansible_host=147.75.79.31 ansible_user=centos ansible_port=2027
+consul.sdn511u1.lab.lab ansible_host=147.75.74.243 ansible_user=centos ansible_port=2027
 #
 # The master group should have only ONE FQDN defined/specified
 #
@@ -30,6 +30,7 @@ consul.sdn511u1.lab.lab ansible_host=147.75.79.31 ansible_user=centos ansible_po
 master_ip_address_configured=192.168.0.27
 ntp_server='192.168.0.12'
 vsd_api_url='https://192.168.0.20:8443'
+vsd_ip='192.168.0.20'
 vsp_version='v5_0'
 service_cidr='70.70.0.0/16'
 csproot_passwd='csproot'
@@ -43,8 +44,8 @@ vrs_rpm='https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r9+files/nuage-ope
 plugin_rpm='https://s3-us-west-2.amazonaws.com/nuage-demo-cala/40r9+files/nuage-k8s-plugin40r9.rpm'
 
 [nuage_k8s_node]
-docker1.sdn511u1.lab.lab ansible_host=147.75.79.31 ansible_user=centos ansible_port=2028
-docker2.sdn511u1.lab.lab ansible_host=147.75.79.31 ansible_user=centos ansible_port=2029
+docker1.sdn511u1.lab.lab ansible_host=147.75.74.243 ansible_user=centos ansible_port=2028
+docker2.sdn511u1.lab.lab ansible_host=147.75.74.243 ansible_user=centos ansible_port=2029
 #
 # FQDNs of hosts assigned the Kubernetes cluster node role
 #

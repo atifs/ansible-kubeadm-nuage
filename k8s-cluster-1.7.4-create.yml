@@ -7,7 +7,7 @@
 
   roles:
 
-    - role: kubeadm_install_1.6.6
+    - role: kubeadm_install_1.7.4
       tags:
         - repo
         - master
@@ -46,7 +46,7 @@
       command: kubeadm reset
 
     - name: Initialize master
-      command: kubeadm init kubeadm init service-cidr {{ service_cidr }}  apiserver-advertise-address {{ master_ip_address }} kubernetes-version v1.6.6
+      command: kubeadm init kubeadm init service-cidr {{ service_cidr }}  apiserver-advertise-address {{ master_ip_address }} kubernetes-version v1.7.4
       register: master_init
       ignore_errors: true
       tags:
@@ -65,7 +65,7 @@
         var: admission_token
 
     - name: Copy 10-kubeadm.conf file to nserver
-      template: src=master-10-kubeadm.conf-1.6.6.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      template: src=master-10-kubeadm.conf-1.7.4.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     - name: Copy /etc/kubernetes/admin.conf on master to cfg/cluster_name/admin.conf
       fetch:
@@ -115,7 +115,7 @@
       when: ansible_user == 'centos'
 
     - name: Copy 10-kubeadm.conf file to nserver
-      template: src=node-10-kubeadm.conf-1.6.6.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      template: src=node-10-kubeadm.conf-1.7.4.j2 backup=no dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     - name: kubeadm reset
       command: kubeadm reset

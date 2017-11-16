@@ -1,0 +1,48 @@
+# Create an k8s group that contains the masters and nodes groups
+[k8s:children]
+masters
+nodes
+
+# Set variables common for all k8s hosts
+[k8s:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+vsd_api_url={{ vsd_api_url }}
+vsp_version={{ vsp_version }}
+enterprise={{ enterprise }}
+domain={{ domain }}
+
+vsc_active_ip={{ vsc_active_ip }}
+vsc_standby_ip={{ vsc_standby_ip }}
+uplink_interface={{ uplink_interface }}
+userspace_kubeproxy=false
+
+nuage_monitor_rpm={{ nuage_monitor_rpm }}
+vrs_rpm={{ vrs_rpm }}
+plugin_rpm={{ plugin_rpm }}
+
+# Required for Nuage Monitor REST server
+Kubernetes_master_cluster_hostname={{ inventory_hostname }}
+nuagekubemon_rest_server_port=9443
+
+# Optional
+nuage_interface_mtu=1460
+#User to be created by nuagekubemon as the enterprise admin user
+nuage_master_adminusername=admin
+nuage_master_adminuserpasswd=admin
+#CSP admin user password
+nuage_master_cspadminpasswd=csproot
+nuagekubemon_log_dir=/var/log/nuagekubemon
+
+# host group for masters
+[masters]
+{{ inventory_hostname }}
+
+# host group for nodes, includes region info
+[nodes]
+{% for elem in groups['nuage_k8s_node'] %}
+{% if elem %}
+{{ groups['nuage_k8s_node'][loop.index - 1] }}
+{% endif %}
+{% endfor %}

@@ -52,7 +52,7 @@
 
   roles:
 
-    - role: nuage_4.0r8_repo
+    - role: nuage_5.1.1-1_repo
       tags:
         - nuage
 

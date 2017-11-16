@@ -20,16 +20,21 @@
     - name: Verification Result Success Status
       debug: var=output.stdout
 
+    - name: Create folder /var/k8s/certs
+      file:
+        path: /var/k8s/certs
+        state: directory
+        mode: 0755
+
 - hosts: vsd
   become: true
   tasks:
     - name: "Add stat to VSD known_hosts list"
       shell: "ssh-keyscan -t rsa {{ master_ip_address_configured }} | sed -e 's/#.*$//' | sed -e '/^$/d' > /root/.ssh/known_hosts"
 
-
 - hosts: vsd
   become: true
   tasks:
     - name: "Copying certificates from VSD to k8s Master server"
-      shell:  "/opt/vsd/ejbca/deploy/certMgmt.sh -a generate -u k8s-admin -c k8s-admin -o csp -d {{ hostvars[groups['nuage_k8s_master'][0]].inventory_hostname }} -f pem -t server -s root@{{ master_ip_address_configured  }}:/usr/local"
+      shell:  "/opt/vsd/ejbca/deploy/certMgmt.sh -a generate -u k8s-admin -c k8s-admin -o csp -d {{ hostvars[groups['nuage_k8s_master'][0]].inventory_hostname }} -f pem -t server -s root@{{ master_ip_address_configured  }}:/var/k8s/certs"
       become: false

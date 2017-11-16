@@ -1,7 +1,7 @@
 [Service]
 Environment="KUBELET_KUBECONFIG_ARGS=--kubeconfig=/etc/kubernetes/kubelet.conf --require-kubeconfig=true"
 Environment="KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests --allow-privileged=true"
-Environment="KUBELET_DNS_ARGS=--cluster-dns=172.30.0.10 --cluster-domain=cluster.local"
+Environment="KUBELET_DNS_ARGS=--cluster-dns=192.168.0.10 --cluster-domain=cluster.local"
 Environment="KUBELET_AUTHZ_ARGS=--authorization-mode=Webhook --client-ca-file=/etc/kubernetes/pki/ca.crt"
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
 ExecStart=

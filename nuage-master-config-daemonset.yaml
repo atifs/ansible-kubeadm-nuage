@@ -9,19 +9,20 @@ data:
   # on master nodes
   monitor_yaml_config: |
       kubeConfig: /usr/share/nuagekubemon/nuage.kubeconfig
+
       masterConfig: /usr/share/nuagekubemon/net-config.yaml
       # URL of the VSD Architect
-      vsdApiUrl: https://{{ vsd_ip }}:7443
+      vsdApiUrl: https://xmpp.example.com:7443
       # API version to query against
-      vspVersion: {{ vsd_version }}
+      vspVersion: v5_0
       # Name of the enterprise in which pods will reside
-      enterpriseName: {{ enterprise }}
+      enterpriseName: kubernetes
       # Name of the domain in which pods will reside
-      domainName: {{ domain }}
+      domainName: kubernetes
       # VSD generated user certificate file location on master node
-      userCertificateFile: /var/k8s/certs/k8s-admin.pem
+      userCertificateFile: /usr/share/nuagekubemon/k8s-admin.pem
       # VSD generated user key file location on master node
-      userKeyFile: /var/k8s/certs/k8s-admin-Key.pem
+      userKeyFile: /usr/share/nuagekubemon/k8s-admin-Key.pem
       # Location where logs should be saved
       log_dir: /var/log/nuagekubemon
       # Monitor rest server paramters
@@ -73,7 +74,7 @@ spec:
       containers:
         # This container configures Nuage Master node
         - name: install-nuage-master-config
-          image: nuage/master:5.1.1-5
+          image: nuage/master:v5.0.2
           ports:
             - containerPort: 9443
               hostPort: 9443

@@ -49,42 +49,22 @@
       with_items:
         - ansible
         - git
-
-  roles:
-
-    - role: nuage_5.1.1-1_repo
-      tags:
-        - nuage
-
-# restarting kube-dns pod
-
-- hosts: "{{ cluster_name }}_master"
-
-  become: true
-
   tasks:
 
-    - name: get kube-dns name
-      shell: kubectl get --no-headers=true pods -o name --all-namespaces | awk -F "/" '{print $2}' | grep kube-dns
-      register: kubedns
+    - name: clone github nuage repo for k8s
+      git:
+        repo: 'https://github.com/nuagenetworks/nuage-kubernetes.git'
+        dest: /root/nuage-k8s-plugin-5.1.1-1
+        version: v5.1.1-1
+      ignore_errors: yes
+
+    - name: checkout git version
+      command: "git checkout tags/v5.1.1-1"
+      args:
+        chdir: /root/nuage-k8s-plugin-5.1.1-1
+      register: gitchk
 
     - debug:
-        var: kubedns
+        var: gitchk.stdout_lines
 
-    - name: restart kube-dns
-      shell: kubectl delete pod {{ kubedns.stdout }} -n kube-system
-
-    - name: Wait for Kube-DNS pod running
-      shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods --all-namespaces | grep kube-dns"
-      register: result
-      until: result.stdout.find("Running") != -1
-      retries: 30
-      delay: 10
-
-    - name: showing k8s status
-      shell: kubectl get pods --all-namespaces
-      register: k8sstatus
-
-    - debug:
-        var: k8sstatus.stdout_lines
 

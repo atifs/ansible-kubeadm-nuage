@@ -1,0 +1,4 @@
+- include: nuage-5.1.1u1-k8s-plugin-git-clone.yml
+- include: nuage-5.1.1u1-k8s-plugin-load-images.yml  
+- include: nuage-5.1.1u1-k8s-plugin-vsd-cert.yml
+- include: nuage-5.1.1u1-k8s-plugin-install.yml  

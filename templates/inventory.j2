@@ -1,0 +1,36 @@
+# Create an k8s group that contains the masters and nodes groups
+[k8s:children]
+masters
+nodes
+
+# Set variables common for all k8s hosts
+[k8s:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+nuage_cluster_network_CIDR=80.80.0.0/16
+
+# Complete local host path to the VSD user certificate file
+vsd_user_cert_file=/var/k8s/certs/k8s-admin.pem
+# Complete local host path to the VSD user key file
+vsd_user_key_file=/var/k8s/certs/k8s-admin-Key.pem
+
+# Required for Nuage Monitor REST server
+Kubernetes_master_cluster_hostname={{ inventory_hostname }}
+nuagekubemon_rest_server_port=9443
+
+# Optional
+nuage_interface_mtu=1460
+nuagekubemon_log_dir=/var/log/nuagekubemon
+
+# host group for masters
+[masters]
+{{ inventory_hostname }}
+
+# host group for nodes, includes region info
+[nodes]
+{% for elem in groups['nuage_k8s_node'] %}
+{% if elem %}
+{{ groups['nuage_k8s_node'][loop.index - 1] }}
+{% endif %}
+{% endfor %}
